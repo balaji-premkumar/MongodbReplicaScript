@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongo1:
+    container_name: mongo1
+    image: percona/percona-server-mongodb:4.4
+    volumes:
+      - ~/mongors/data1:/data/db
+      - ./rs-init.sh:/scripts/rs-init.sh
+    networks:
+      - mongors-network
+    ports:
+      - 0.0.0.0:27021:27021
+    links:
+      - mongo2
+      - mongo3
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip","0.0.0.0","--port","27021", "--replSet", "dbrs" ]
+  mongo2:
+    container_name: mongo2
+    image: percona/percona-server-mongodb:4.4
+    volumes:
+      - ~/mongors/data2:/data/db
+    networks:
+      - mongors-network
+    ports:
+      - 0.0.0.0:27022:27022
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip","0.0.0.0","--port","27022", "--replSet", "dbrs" ]
+  mongo3:
+    container_name: mongo3
+    image: percona/percona-server-mongodb:4.4
+    volumes:
+      - ~/mongors/data3:/data/db
+    networks:
+      - mongors-network
+    ports:
+      - 0.0.0.0:27023:27023
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip","0.0.0.0","--port","27023", "--replSet", "dbrs" ]
+
+networks:
+  mongors-network:
+    driver: bridge
